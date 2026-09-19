@@ -56,7 +56,7 @@ const float MICROSTEP_FACTOR = 16.0;
 const float STEPS_PER_REV = 200.0 * MICROSTEP_FACTOR;
 
 /** @brief Lead screw travel per revolution (mm) */
-const float LEAD_MM_PER_REV = 2.0;
+const float LEAD_MM_PER_REV = 8.0;
 
 /** @brief Conversion factor: cubic millimeters per mL */
 const float MILLIMETER_CUBE_PER_ML = 1000.0;
@@ -147,9 +147,9 @@ void setLedGreen() {
  * @brief Turn LED to Yellow (Paused/Idle state)
  */
 void setLedYellow() {
-  digitalWrite(LED_GREEN_PIN, 190);   // Mix red + green to get yellow
-  digitalWrite(LED_BLUE_PIN, 0);
-  digitalWrite(LED_RED_PIN, 255);
+  digitalWrite(LED_GREEN_PIN, HIGH);  // Mix red + green to get yellow
+  digitalWrite(LED_BLUE_PIN, LOW);
+  digitalWrite(LED_RED_PIN, HIGH);
 }
 
 /**
@@ -301,7 +301,6 @@ void stopMotor() {
 
   stepper.setSpeed(0.0);
   pumpRunning = false;
-  stepper.setSpeed(0.0);
 }
 
 /**
