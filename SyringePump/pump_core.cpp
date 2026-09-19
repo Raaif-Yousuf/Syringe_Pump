@@ -111,6 +111,34 @@ JogAction decideJogAction(bool pumpRunning, bool jogForwardLow, bool jogReverseL
 
 }  // namespace pump
 
+// ========================== PotFilter ==========================
+
+PotFilter::PotFilter(float alpha, int deadbandCounts)
+    : alpha_(alpha), deadbandCounts_(deadbandCounts), emaValue_(0.0f), lastOutput_(0), initialized_(false) {}
+
+int PotFilter::update(int rawAdc) {
+  if (!initialized_) {
+    emaValue_ = static_cast<float>(rawAdc);
+    lastOutput_ = rawAdc;
+    initialized_ = true;
+    return lastOutput_;
+  }
+
+  emaValue_ = alpha_ * static_cast<float>(rawAdc) + (1.0f - alpha_) * emaValue_;
+  int rounded = static_cast<int>(emaValue_ + (emaValue_ >= 0.0f ? 0.5f : -0.5f));
+
+  if (abs(rounded - lastOutput_) >= deadbandCounts_) {
+    lastOutput_ = rounded;
+  }
+  return lastOutput_;
+}
+
+void PotFilter::reset() {
+  initialized_ = false;
+  emaValue_ = 0.0f;
+  lastOutput_ = 0;
+}
+
 // ========================== PumpRuntime ==========================
 
 PumpRuntime::PumpRuntime(StepperType &stepper, LcdType &lcd, const Pins &pins, int syringeSizeMl)
@@ -174,8 +202,9 @@ void PumpRuntime::loop() {
 }
 
 void PumpRuntime::readFlowRatePot() {
-  int potValue = analogRead(pins_.potPin);
-  float raw = pump::rawFlowFromPot(potValue);
+  int potValueRaw = analogRead(pins_.potPin);
+  int potValueFiltered = potFilter_.update(potValueRaw);
+  float raw = pump::rawFlowFromPot(potValueFiltered);
   commandedFlowRateMlMin_ = pump::quantizeFlow(raw);
 }
 
