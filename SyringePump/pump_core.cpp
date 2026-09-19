@@ -25,7 +25,8 @@ float syringeAreaMm2(float diameterMm) {
 }
 
 float rawFlowFromPot(int potValue, float maxFlowMlMin, int potMaxCounts) {
-  return (static_cast<float>(potValue) / static_cast<float>(potMaxCounts)) * maxFlowMlMin;
+  int counts = POT_REVERSED ? potMaxCounts - potValue : potValue;
+  return (static_cast<float>(counts) / static_cast<float>(potMaxCounts)) * maxFlowMlMin;
 }
 
 float quantizeFlow(float rawFlow) {

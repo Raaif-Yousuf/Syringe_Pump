@@ -111,12 +111,13 @@ TEST(GoldenEquivalence, CommandedSpeedScalesByLeadRatioForEveryPotSyringeCombo) 
 
     float oldDiameter = OriginalOracle::diameterMm(c.syringeSizeMl);
     float oldArea = OriginalOracle::areaMm2(oldDiameter);
-    // The pot-to-flow mapping and syringe geometry are lead-independent, so
-    // these must match exactly, not just proportionally.
+    // Syringe geometry is lead-independent, so it must match exactly. The pot
+    // is reversed on purpose, so reading r now gives the flow the original
+    // firmware gave at POT_MAX_COUNTS - r.
     ASSERT_FLOAT_EQ(area, oldArea);
 
     float flow = pump::quantizeFlow(pump::rawFlowFromPot(c.potValue));
-    float oldFlow = OriginalOracle::quantizeFlow(OriginalOracle::rawFlowFromPot(c.potValue));
+    float oldFlow = OriginalOracle::quantizeFlow(OriginalOracle::rawFlowFromPot(pump::POT_MAX_COUNTS - c.potValue));
     ASSERT_FLOAT_EQ(flow, oldFlow);
 
     float refactoredSpeed = pump::commandedStepsPerSec(flow, area);

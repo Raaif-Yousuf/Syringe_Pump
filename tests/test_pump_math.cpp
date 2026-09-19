@@ -23,16 +23,24 @@ TEST(SyringeArea, MatchesCircleArea) {
   EXPECT_NEAR(area, 314.159265f, 0.01f);
 }
 
-TEST(PotToFlow, ZeroReadingIsZeroFlow) {
-  EXPECT_FLOAT_EQ(pump::rawFlowFromPot(0), 0.0f);
+TEST(PotToFlow, PotIsReversed) {
+  EXPECT_TRUE(pump::POT_REVERSED);
 }
 
-TEST(PotToFlow, FullScaleReadingIsMaxFlow) {
-  EXPECT_NEAR(pump::rawFlowFromPot(1023), pump::MAX_POT_FLOW_ML_MIN, kTol);
+TEST(PotToFlow, ZeroReadingIsMaxFlow) {
+  EXPECT_NEAR(pump::rawFlowFromPot(0), pump::MAX_POT_FLOW_ML_MIN, kTol);
+}
+
+TEST(PotToFlow, FullScaleReadingIsZeroFlow) {
+  EXPECT_FLOAT_EQ(pump::rawFlowFromPot(1023), 0.0f);
 }
 
 TEST(PotToFlow, MidScaleIsHalfMaxFlow) {
-  EXPECT_NEAR(pump::rawFlowFromPot(512), pump::MAX_POT_FLOW_ML_MIN * (512.0f / 1023.0f), kTol);
+  EXPECT_NEAR(pump::rawFlowFromPot(512), pump::MAX_POT_FLOW_ML_MIN * (511.0f / 1023.0f), kTol);
+}
+
+TEST(PotToFlow, LowerReadingMeansFasterFlow) {
+  EXPECT_GT(pump::rawFlowFromPot(200), pump::rawFlowFromPot(800));
 }
 
 TEST(QuantizeFlow, RoundsToNearestTenth) {
