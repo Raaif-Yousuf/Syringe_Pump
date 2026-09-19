@@ -1,0 +1,14 @@
+# Arduino IDE / arduino-cli
+build/
+*.hex
+*.elf
+
+# IDE junk
+.idea/
+.vs/
+*.iml
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
