@@ -64,7 +64,13 @@ arduino-cli compile --fqbn arduino:avr:uno SyringePump
 arduino-cli upload -p <PORT> --fqbn arduino:avr:uno SyringePump
 ```
 
-## Tests
+## Testing
 
-No hardware to test against right now, so verification is `arduino-cli
-compile` in CI on every pull request (see `.github/workflows/build.yml`).
+I don't have the hardware anymore, so the pump math and state machine live
+in `pump_core.h/.cpp` and are unit tested on a PC with GoogleTest, checked
+against the original firmware's numbers. CI runs this alongside `arduino-cli
+compile` on every pull request.
+
+```
+cmake -S . -B build && cmake --build build && ctest --test-dir build
+```
