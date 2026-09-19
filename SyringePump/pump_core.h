@@ -42,6 +42,13 @@ constexpr float MAX_POT_FLOW_ML_MIN = 7.5f;
 /** @brief Full-scale ADC reading of the potentiometer input */
 constexpr int POT_MAX_COUNTS = 1023;
 
+/**
+ * @brief The pot is wired so its ADC reading falls as the knob turns toward
+ * "faster". With this set, a reading of 0 maps to max flow and full scale to
+ * zero, so turning the knob up speeds the pump up.
+ */
+constexpr bool POT_REVERSED = true;
+
 /** @brief Manual jogging speed (steps/sec, negative = forward convention) */
 constexpr float JOG_SPEED_STEPS_PER_SEC = -1000.0f;
 
