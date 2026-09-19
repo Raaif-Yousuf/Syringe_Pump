@@ -45,6 +45,21 @@ constexpr int POT_MAX_COUNTS = 1023;
 /** @brief Manual jogging speed (steps/sec, negative = forward convention) */
 constexpr float JOG_SPEED_STEPS_PER_SEC = -1000.0f;
 
+// ========================== POTENTIOMETER SMOOTHING ==========================
+
+/**
+ * @brief Exponential-moving-average weight applied to each new raw ADC
+ * sample (0 < alpha <= 1; smaller means smoother but slower to respond).
+ */
+constexpr float POT_EMA_ALPHA = 0.2f;
+
+/**
+ * @brief Deadband, in ADC counts, that the smoothed reading must move past
+ * before the reported setpoint is allowed to change. Rejects potentiometer
+ * wiper/ADC jitter that would otherwise flicker the flow-rate setpoint.
+ */
+constexpr int POT_DEADBAND_COUNTS = 4;
+
 // ========================== SYRINGE DIMENSIONS ==========================
 
 /** @brief Plunger diameter (mm) for 10 mL syringe */
@@ -120,6 +135,37 @@ JogAction decideJogAction(bool pumpRunning, bool jogForwardLow, bool jogReverseL
 
 }  // namespace pump
 
+// ========================== POTENTIOMETER FILTER ==========================
+
+/**
+ * @brief Exponential-moving-average smoothing with a deadband, applied to a
+ * potentiometer's raw ADC reading.
+ *
+ * This is an intentional behavior change from the original firmware, which
+ * fed analogRead() straight into the flow-rate calculation: a steady input
+ * with small jitter now keeps a constant filtered value, and a real step
+ * change is picked up within a bounded number of samples. See
+ * pump::POT_EMA_ALPHA and pump::POT_DEADBAND_COUNTS.
+ */
+class PotFilter {
+ public:
+  explicit PotFilter(float alpha = pump::POT_EMA_ALPHA,
+                      int deadbandCounts = pump::POT_DEADBAND_COUNTS);
+
+  /** @brief Feeds one raw ADC sample and returns the filtered ADC value. */
+  int update(int rawAdc);
+
+  /** @brief Resets the filter so the next sample is taken as-is. */
+  void reset();
+
+ private:
+  float alpha_;
+  int deadbandCounts_;
+  float emaValue_;
+  int lastOutput_;
+  bool initialized_;
+};
+
 // ========================== RUNTIME (hardware-facing) ==========================
 
 /**
@@ -168,6 +214,7 @@ class PumpRuntime {
 
   StepperType &stepper_;
   LcdType &lcd_;
+  PotFilter potFilter_;
 
   Pins pins_;
   int syringeSizeMl_;

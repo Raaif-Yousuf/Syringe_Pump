@@ -13,6 +13,7 @@ add_executable(pump_tests
   test_pump_math.cpp
   test_state_machine.cpp
   test_golden_equivalence.cpp
+  test_pot_filter.cpp
 )
 
 target_link_libraries(pump_tests PRIVATE pump_core gtest_main)
