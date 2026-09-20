@@ -44,6 +44,10 @@ arduino-cli compile --fqbn arduino:avr:uno SyringePump
 arduino-cli upload -p <PORT> --fqbn arduino:avr:uno SyringePump
 ```
 
+The compiled firmware for an Uno is attached to the
+[v1.0.0 release](https://github.com/Raaif-Yousuf/Syringe_Pump/releases/tag/v1.0.0)
+if you would rather flash the hex than build it.
+
 I no longer have the hardware, so the pump math and the state machine live in
 `pump_core.h/.cpp` and are unit tested on a PC with GoogleTest against the
 original firmware's numbers: `cmake -S . -B build && cmake --build build && ctest --test-dir build`.
